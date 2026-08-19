@@ -1,0 +1,480 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block title %}Home - Tweeties{% endblock %}
+
+{% block content %}
+<div class="p-3">
+    <!-- Create Tweet Section -->
+    <div class="border-bottom border-secondary pb-3 fade-in mb-3">
+        <div class="d-flex gap-3">
+            <div class="flex shrink-0">
+                {% if user.is_authenticated %}
+                    <img src="https://ui-avatars.com/api/?name={{ user.username }}&background=1d9bf0&color=fff&size=48&bold=true" 
+                         class="rounded-circle" width="48" height="48" alt="{{ user.username }}">
+                {% else %}
+                    <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center" 
+                         style="width: 48px; height: 48px;">
+                        <i class="fas fa-user fa-2x text-dark"></i>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="flex grow 1">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'tweet_create' %}" class="text-decoration-none">
+                        <div class="form-control bg-transparent border-0 text-secondary" 
+                             style="cursor: pointer; font-size: 1.1rem; padding: 12px 0;">
+                            <i class="fas fa-feather-alt me-2 text-primary"></i>
+                            What's happening?
+                        </div>
+                    </a>
+                    <div class="d-flex justify-content-between align-items-center border-top border-secondary pt-2">
+                        <div class="d-flex gap-2">
+                            <a href="{% url 'tweet_create' %}" class="btn btn-outline-primary rounded-circle p-2" 
+                               style="width: 38px; height: 38px;" title="Add image">
+                                <i class="fas fa-image"></i>
+                            </a>
+                            <button type="button" class="btn btn-outline-primary rounded-circle p-2" 
+                                    style="width: 38px; height: 38px;" title="Add GIF">
+                                <i class="fas fa-smile"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-primary rounded-circle p-2" 
+                                    style="width: 38px; height: 38px;" title="Add location">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </button>
+                            <a href="{% url 'tweet_create' %}" class="btn btn-primary-custom px-4">
+                                <i class="fas fa-feather-alt me-2"></i>Tweet
+                            </a>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class=" d-flex text-center py-3 bg-dark rounded-3 border border-secondary p-2 ">
+                        <p class="text-secondary m-2 ">Sign in to join the conversation</p>
+                        <a href="{% url 'login' %}" class="btn btn-primary-custom">
+                            <i class="fas fa-sign-in-alt me-2"></i>Login to Tweet
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Feed Tabs -->
+    <div class="d-flex border-bottom border-secondary mb-2">
+        <button class="btn btn-link text-light text-decoration-none py-3 flex grow 1 fw-bold position-relative" 
+                style="background: transparent;" id="forYouTab">
+            For You
+            <span class="position-absolute bottom-0 start-50 translate-middle-x bg-primary" 
+                  style="width: 60px; height: 4px; border-radius: 9999px;"></span>
+        </button>
+        <button class="btn btn-link text-secondary text-decoration-none py-3 flex grow 1 fw-bold" 
+                style="background: transparent;" id="followingTab">
+            Following
+        </button>
+    </div>
+
+    <!-- Tweets Feed -->
+    <div class="mt-2">
+        {% for tweet in tweets %}
+        <div class="tweet-card p-3 border-bottom border-secondary fade-in" 
+             style="transition: all 0.2s ease; cursor: pointer;"
+             onmouseover="this.style.backgroundColor='rgba(255,255,255,0.03)'" 
+             onmouseout="this.style.backgroundColor='transparent'"
+             onclick="window.location.href='#'">
+            
+            <div class="d-flex gap-3">
+                <!-- Avatar -->
+                <div class="flex shrink 0">
+                    <img src="https://ui-avatars.com/api/?name={{ tweet.user.username }}&background=1d9bf0&color=fff&size=48&bold=true" 
+                         class="rounded-circle" width="48" height="48" alt="{{ tweet.user.username }}">
+                </div>
+                
+                <!-- Tweet Content -->
+                <div class="flex grow 1 min-width-0">
+                    <!-- Header -->
+                    <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                        <span class="fw-bold text-light">{{ tweet.user.get_full_name|default:tweet.user.username }}</span>
+                        <span class="text-secondary">@{{ tweet.user.username }}</span>
+                        <span class="text-secondary">·</span>
+                        <span class="text-secondary small">{{ tweet.created_at|timesince }} ago</span>
+                        <div class="ms-auto">
+                            <div class="dropdown">
+                                <button class="btn btn-link text-secondary p-0" style="font-size: 0.9rem;" 
+                                        onclick="event.stopPropagation();" data-bs-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end bg-dark border-secondary">
+                                    <li><a class="dropdown-item text-light" href="#"><i class="fas fa-bookmark me-2"></i>Save</a></li>
+                                    <li><a class="dropdown-item text-light" href="#"><i class="fas fa-flag me-2"></i>Report</a></li>
+                                    {% if tweet.user == user %}
+                                    <li><hr class="dropdown-divider border-secondary"></li>
+                                    <li><a class="dropdown-item text-warning" href="{% url 'tweet_edit' tweet.id %}"><i class="fas fa-edit me-2"></i>Edit</a></li>
+                                    <li><a class="dropdown-item text-danger" href="{% url 'tweet_delete' tweet.id %}"><i class="fas fa-trash me-2"></i>Delete</a></li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Content -->
+                    <p class="text-light mb-2" style="white-space: pre-wrap; word-wrap: break-word;">{{ tweet.tweet }}</p>
+                    
+                    <!-- Image -->
+                    {% if tweet.photo %}
+                    <div class="mb-2 rounded-3 overflow-hidden border border-secondary" 
+                         onclick="event.stopPropagation();">
+                        <img src="{{ tweet.photo.url }}" class="img-fluid w-100" alt="Tweet image" 
+                             style="max-height: 400px; object-fit: cover;">
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Actions -->
+                    <div class="d-flex justify-content-between mt-2 text-secondary" style="max-width: 425px;">
+                        <!-- Comment -->
+                        <button class="btn btn-link text-secondary p-0 hover-primary" 
+                                style="transition: all 0.2s ease; text-decoration: none;"
+                                onclick="event.stopPropagation();"
+                                onmouseover="this.style.color='#1d9bf0'" 
+                                onmouseout="this.style.color=''">
+                            <i class="far fa-comment"></i>
+                            <span class="ms-1">{{ tweet.comments.count|default:0 }}</span>
+                        </button>
+                        
+                        <!-- Retweet -->
+                        <button class="btn btn-link text-secondary p-0 hover-success" 
+                                style="transition: all 0.2s ease; text-decoration: none;"
+                                onclick="event.stopPropagation();"
+                                onmouseover="this.style.color='#00ba7c'" 
+                                onmouseout="this.style.color=''">
+                            <i class="fas fa-retweet"></i>
+                            <span class="ms-1">{{ tweet.retweets.count|default:0 }}</span>
+                        </button>
+                        
+                        <!-- Like -->
+                        <button class="btn btn-link text-secondary p-0 like-btn hover-danger" 
+                                data-tweet-id="{{ tweet.id }}"
+                                style="transition: all 0.2s ease; text-decoration: none;"
+                                onclick="event.stopPropagation();"
+                                onmouseover="this.style.color='#f4212e'" 
+                                onmouseout="this.style.color=''">
+                            <i class="{% if user in tweet.likes.all %}fas{% else %}far{% endif %} fa-heart"></i>
+                            <span class="ms-1 like-count">{{ tweet.likes.count|default:0 }}</span>
+                        </button>
+                        
+                        <!-- Share -->
+                        <button class="btn btn-link text-secondary p-0 hover-primary" 
+                                style="transition: all 0.2s ease; text-decoration: none;"
+                                onclick="event.stopPropagation();"
+                                onmouseover="this.style.color='#1d9bf0'" 
+                                onmouseout="this.style.color=''">
+                            <i class="fas fa-share-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <!-- Empty State -->
+        <div class="text-center py-5">
+            <i class="fas fa-feather-alt fa-3x text-secondary mb-3"></i>
+            <h4 class="text-light">No tweets yet</h4>
+            <p class="text-secondary">Be the first to share what's happening!</p>
+            {% if user.is_authenticated %}
+            <a href="{% url 'tweet_create' %}" class="btn btn-primary-custom mt-2">
+                <i class="fas fa-plus me-2"></i>Create Tweet
+            </a>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Load More (Pagination) -->
+    {% if tweets.has_next %}
+    <div class="text-center py-3">
+        <button class="btn btn-outline-secondary text-light border-secondary" 
+                onclick="loadMoreTweets()" id="loadMoreBtn">
+            <i class="fas fa-spinner fa-spin d-none" id="loadMoreSpinner"></i>
+            <span id="loadMoreText">Load more</span>
+        </button>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Additional CSS -->
+<style>
+    /* Hover colors */
+    .hover-primary:hover { color: #1d9bf0 !important; }
+    .hover-success:hover { color: #00ba7c !important; }
+    .hover-danger:hover { color: #f4212e !important; }
+    
+    /* Tweet card transitions */
+    .tweet-card {
+        transition: background-color 0.2s ease;
+        cursor: pointer;
+    }
+    
+    .tweet-card:hover .tweet-actions {
+        opacity: 1;
+    }
+    
+    /* Button link styles */
+    .btn-link {
+        text-decoration: none !important;
+    }
+    
+    .btn-link:hover {
+        text-decoration: none !important;
+    }
+    
+    /* Image hover effect */
+    .tweet-card img {
+        transition: transform 0.3s ease;
+    }
+    
+    .tweet-card img:hover {
+        transform: scale(1.01);
+    }
+    
+    /* Dropdown menu styling */
+    .dropdown-menu {
+        background-color: #1a1a1a !important;
+        border: 1px solid #2f3336 !important;
+        border-radius: 12px !important;
+        padding: 0.5rem 0 !important;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.8) !important;
+    }
+    
+    .dropdown-item {
+        color: #e7e9ea !important;
+        padding: 0.5rem 1.5rem !important;
+        transition: all 0.2s ease;
+    }
+    
+    .dropdown-item:hover {
+        background-color: rgba(29, 155, 240, 0.1) !important;
+        color: #1d9bf0 !important;
+    }
+    
+    .dropdown-item.text-danger:hover {
+        background-color: rgba(244, 33, 46, 0.1) !important;
+        color: #f4212e !important;
+    }
+    
+    .dropdown-item.text-warning:hover {
+        background-color: rgba(255, 215, 0, 0.1) !important;
+        color: #ffd700 !important;
+    }
+    
+    .dropdown-divider {
+        border-color: #2f3336 !important;
+    }
+    
+    /* Animation for new tweets */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .fade-in {
+        animation: fadeIn 0.4s ease-out;
+    }
+    
+    /* Create tweet placeholder */
+    .form-control.bg-transparent {
+        background-color: transparent !important;
+    }
+    
+    .form-control.bg-transparent:hover {
+        background-color: rgba(255, 255, 255, 0.03) !important;
+        border-radius: 9999px !important;
+        padding-left: 1rem !important;
+    }
+    
+    /* Like button animation */
+    .like-btn i {
+        transition: transform 0.2s ease;
+    }
+    
+    .like-btn:hover i {
+        transform: scale(1.2);
+    }
+    
+    .like-btn .fas.fa-heart {
+        color: #f4212e;
+    }
+    
+    /* Custom scrollbar for tweet container */
+    .tweet-container::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .tweet-container::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    
+    .tweet-container::-webkit-scrollbar-thumb {
+        background: #2f3336;
+        border-radius: 10px;
+    }
+    
+    .tweet-container::-webkit-scrollbar-thumb:hover {
+        background: #3d4144;
+    }
+</style>
+
+<!-- JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Like functionality
+    const likeButtons = document.querySelectorAll('.like-btn');
+    likeButtons.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const tweetId = this.dataset.tweetId;
+            const icon = this.querySelector('i');
+            const countSpan = this.querySelector('.like-count');
+            
+            // Get CSRF token
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+            
+            fetch(`/like-tweet/${tweetId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken || '',
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.liked) {
+                    icon.classList.remove('far');
+                    icon.classList.add('fas');
+                    icon.style.color = '#f4212e';
+                    // Animate like
+                    icon.style.transform = 'scale(1.4)';
+                    setTimeout(() => {
+                        icon.style.transform = 'scale(1)';
+                    }, 200);
+                } else {
+                    icon.classList.remove('fas');
+                    icon.classList.add('far');
+                    icon.style.color = '';
+                }
+                countSpan.textContent = data.likes_count;
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    });
+    
+    // Tab switching
+    const forYouTab = document.getElementById('forYouTab');
+    const followingTab = document.getElementById('followingTab');
+    
+    if (forYouTab) {
+        forYouTab.addEventListener('click', function() {
+            this.classList.add('text-light');
+            this.classList.remove('text-secondary');
+            this.querySelector('span').style.display = 'block';
+            
+            followingTab.classList.remove('text-light');
+            followingTab.classList.add('text-secondary');
+            followingTab.querySelector('span').style.display = 'none';
+        });
+    }
+    
+    if (followingTab) {
+        followingTab.addEventListener('click', function() {
+            this.classList.add('text-light');
+            this.classList.remove('text-secondary');
+            this.querySelector('span').style.display = 'block';
+            
+            forYouTab.classList.remove('text-light');
+            forYouTab.classList.add('text-secondary');
+            forYouTab.querySelector('span').style.display = 'none';
+        });
+    }
+    
+    // Load more functionality (example)
+    window.loadMoreTweets = function() {
+        const btn = document.getElementById('loadMoreBtn');
+        const spinner = document.getElementById('loadMoreSpinner');
+        const text = document.getElementById('loadMoreText');
+        
+        if (btn) {
+            spinner.classList.remove('d-none');
+            text.textContent = 'Loading...';
+            btn.disabled = true;
+            
+            // Simulate loading (replace with actual AJAX)
+            setTimeout(() => {
+                spinner.classList.add('d-none');
+                text.textContent = 'No more tweets';
+                btn.disabled = true;
+                btn.classList.add('opacity-50');
+            }, 2000);
+        }
+    };
+    
+    // Keyboard shortcut: 'N' for new tweet
+    document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+            e.preventDefault();
+            window.location.href = "{% url 'tweet_create' %}";
+        }
+    });
+    
+    console.log('Keyboard shortcuts: Ctrl+N - New Tweet');
+});
+
+// Retweet function (example)
+function retweetTweet(tweetId) {
+    // Implement retweet functionality
+    console.log('Retweet:', tweetId);
+}
+
+// Share function (example)
+function shareTweet(tweetId) {
+    if (navigator.share) {
+        navigator.share({
+            title: 'Check out this tweet!',
+            url: window.location.href + 'tweet/' + tweetId + '/',
+        }).catch(console.error);
+    } else {
+        // Fallback - copy to clipboard
+        const url = window.location.origin + '/tweet/' + tweetId + '/';
+        navigator.clipboard.writeText(url).then(() => {
+            alert('Link copied to clipboard!');
+        }).catch(console.error);
+    }
+}
+</script>
+{% endblock %}
+
+{% comment %} {% extends "layout.html" %}
+{% block title %}Tweeties{% endblock %}
+{% block content %}
+<a href="{% url 'tweet_create'%}" class="btn btn-primary mt-2 mb-2">Create Tweet</a>
+<div class="container row gap-3">    
+    {% for  tweet in tweets %}
+    <div class="card" style="width: 18rem;">
+        <img src={{tweet.photo.url}} class="card-img-top" alt="">
+        <div class="card-body">
+            <h5 class="card-title">{{tweet.user.username}}</h5>
+            <p class="card-text">{{tweet.tweet}}</p>
+            {% if tweet.user == user %}
+            <a href="{% url 'tweet_edit' tweet.id%}" class="btn btn-success">Edit</a>
+            <a href="{% url 'tweet_delete' tweet.id%}" class="btn btn-danger">Delete</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+    {% endblock %}
+</div> {% endcomment %}

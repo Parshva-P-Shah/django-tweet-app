@@ -1,0 +1,287 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block title %}{{ profile_user.username }} - Tweeties{% endblock %}
+
+{% block content %}
+<div class="p-0">
+    <!-- Profile Header -->
+    <div class="position-relative">
+        <!-- Cover Image -->
+        <div class="position-relative" style="height: 200px; background: linear-gradient(135deg, #1d9bf0 0%, #0d8bd8 100%); overflow: hidden;">
+            {% if profile_user.profile and profile_user.profile.cover_image %}
+            <img src="{{ profile_user.profile.cover_image.url }}" alt="Cover" style="width: 100%; height: 100%; object-fit: cover;">
+            {% else %}
+            <div class="w-100 h-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #1d9bf0 0%, #0a6ea0 100%);">
+                <i class="fas fa-camera fa-2x text-light opacity-50"></i>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Profile Avatar -->
+        <div class="position-absolute bottom-0 start-0 translate-middle-y ms-4">
+            <div class="position-relative">
+                <img src="https://ui-avatars.com/api/?name={{ profile_user.username }}&background=1d9bf0&color=fff&size=120&bold=true" 
+                     class="rounded-circle border-3 border-dark" 
+                     style="width: 120px; height: 120px; object-fit: cover;" 
+                     alt="{{ profile_user.username }}">
+                {% if user == profile_user %}
+                <button class="btn btn-primary btn-sm position-absolute bottom-0 end-0 rounded-circle" 
+                        style="width: 32px; height: 32px; padding: 0; border: 2px solid #000;">
+                    <i class="fas fa-camera" style="font-size: 14px;"></i>
+                </button>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Edit Profile Button -->
+        <div class="position-absolute top-0 end-0 m-3">
+            {% if user == profile_user %}
+            <button class="btn btn-outline-primary-custom" onclick="window.location.href='#'">
+                <i class="fas fa-edit me-2"></i>Edit Profile
+            </button>
+            {% else %}
+            <button class="btn btn-primary-custom follow-btn" data-user-id="{{ profile_user.id }}">
+                <i class="fas fa-user-plus me-2"></i>Follow
+            </button>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Profile Info - FIXED VERSION -->
+    <div class="p-3 pt-4 mt-4 border-bottom border-secondary">
+        <div>
+            <!-- FIX: Use profile_user.get_full_name as a method -->
+            <h3 class="fw-bold text-light mb-0">{{ profile_user.get_full_name|default:profile_user.username }}</h3>
+            <span class="text-secondary">@{{ profile_user.username }}</span>
+            
+            <!-- SAFE: Check if profile exists first -->
+            {% if profile_user.profile and profile_user.profile.bio %}
+            <p class="text-light mt-2 mb-2" style="white-space: pre-wrap;">{{ profile_user.profile.bio }}</p>
+            {% else %}
+            <p class="text-secondary mt-2 mb-2"><i class="fas fa-info-circle me-1"></i>No bio yet</p>
+            {% endif %}
+            
+            <div class="d-flex flex-wrap gap-3 text-secondary small">
+                {% if profile_user.profile and profile_user.profile.location %}
+                <span><i class="fas fa-map-marker-alt me-1 text-primary"></i> {{ profile_user.profile.location }}</span>
+                {% endif %}
+                <span><i class="fas fa-calendar-alt me-1 text-primary"></i> Joined {{ profile_user.date_joined|date:"F Y" }}</span>
+            </div>
+            
+            <div class="d-flex gap-3 mt-2">
+                <a href="#" class="text-decoration-none text-light">
+                    <strong>{{ following_count|default:0 }}</strong> 
+                    <span class="text-secondary">Following</span>
+                </a>
+                <a href="#" class="text-decoration-none text-light">
+                    <strong>{{ followers_count|default:0 }}</strong> 
+                    <span class="text-secondary">Followers</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Tabs -->
+    <div class="d-flex border-bottom border-secondary">
+        <button class="btn btn-link text-light text-decoration-none py-3 flex grow 1 fw-bold position-relative" 
+                style="background: transparent;" id="tweetsTab">
+            <i class="fas fa-feather-alt me-2"></i>Tweets
+            <span class="position-absolute bottom-0 start-50 translate-middle-x bg-primary" 
+                  style="width: 60px; height: 4px; border-radius: 9999px;"></span>
+        </button>
+        <button class="btn btn-link text-secondary text-decoration-none py-3 flex grow 1 fw-bold" 
+                style="background: transparent;" id="repliesTab">
+            <i class="fas fa-reply me-2"></i>Replies
+        </button>
+        <button class="btn btn-link text-secondary text-decoration-none py-3 flex grow 1 fw-bold" 
+                style="background: transparent;" id="mediaTab">
+            <i class="fas fa-image me-2"></i>Media
+        </button>
+        <button class="btn btn-link text-secondary text-decoration-none py-3 flex grow 1 fw-bold" 
+                style="background: transparent;" id="likesTab">
+            <i class="fas fa-heart me-2"></i>Likes
+        </button>
+    </div>
+
+    <!-- User's Tweets -->
+    <div id="tweetsContent">
+        {% for tweet in user_tweets %}
+        <div class="tweet-card p-3 border-bottom border-secondary fade-in" 
+             style="transition: all 0.2s ease; cursor: pointer;"
+             onmouseover="this.style.backgroundColor='rgba(255,255,255,0.03)'" 
+             onmouseout="this.style.backgroundColor='transparent'"
+             
+            
+            <div class="d-flex gap-3">
+                <div class="flex shrink 0">
+                    <img src="https://ui-avatars.com/api/?name={{ tweet.user.username }}&background=1d9bf0&color=fff&size=48&bold=true" 
+                         class="rounded-circle" width="48" height="48" alt="{{ tweet.user.username }}">
+                </div>
+                <div class="flex grow 1 min-width-0">
+                    <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                        <span class="fw-bold text-light">{{ tweet.user.get_full_name|default:tweet.user.username }}</span>
+                        <span class="text-secondary">@{{ tweet.user.username }}</span>
+                        <span class="text-secondary">·</span>
+                        <span class="text-secondary small">{{ tweet.created_at|timesince }} ago</span>
+                        <div class="ms-auto">
+                            <div class="dropdown">
+                                <button class="btn btn-link text-secondary p-0" style="font-size: 0.9rem;" 
+                                        onclick="event.stopPropagation();" data-bs-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end bg-dark border-secondary">
+                                    <li><a class="dropdown-item text-light" href="#"><i class="fas fa-bookmark me-2"></i>Save</a></li>
+                                    <li><a class="dropdown-item text-light" href="#"><i class="fas fa-flag me-2"></i>Report</a></li>
+                                    {% if tweet.user == user %}
+                                    <li><hr class="dropdown-divider border-secondary"></li>
+                                    <li><a class="dropdown-item text-warning" href="{% url 'tweet_edit' tweet.id %}"><i class="fas fa-edit me-2"></i>Edit</a></li>
+                                    <li><a class="dropdown-item text-danger" href="{% url 'tweet_delete' tweet.id %}"><i class="fas fa-trash me-2"></i>Delete</a></li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <p class="text-light mb-2" style="white-space: pre-wrap; word-wrap: break-word;">{{ tweet.tweet }}</p>
+                    
+                    {% if tweet.photo %}
+                    <div class="mb-2 rounded-3 overflow-hidden border border-secondary" onclick="event.stopPropagation();">
+                        <img src="{{ tweet.photo.url }}" class="img-fluid w-100" alt="Tweet image" 
+                             style="max-height: 400px; object-fit: cover;">
+                    </div>
+                    {% endif %}
+                    
+                    <div class="d-flex justify-content-between mt-2 text-secondary" style="max-width: 425px;">
+                        <button class="btn btn-link text-secondary p-0 hover-primary" 
+                                style="transition: all 0.2s ease; text-decoration: none;"
+                                onclick="event.stopPropagation();"
+                                onmouseover="this.style.color='#1d9bf0'" 
+                                onmouseout="this.style.color=''">
+                            <i class="far fa-comment"></i>
+                            <span class="ms-1">{{ tweet.comments.count|default:0 }}</span>
+                        </button>
+                        
+                        <button class="btn btn-link text-secondary p-0 hover-success" 
+                                style="transition: all 0.2s ease; text-decoration: none;"
+                                onclick="event.stopPropagation();"
+                                onmouseover="this.style.color='#00ba7c'" 
+                                onmouseout="this.style.color=''">
+                            <i class="fas fa-retweet"></i>
+                            <span class="ms-1">{{ tweet.retweets.count|default:0 }}</span>
+                        </button>
+                        
+                        <button class="btn btn-link text-secondary p-0 like-btn hover-danger" 
+                                data-tweet-id="{{ tweet.id }}"
+                                style="transition: all 0.2s ease; text-decoration: none;"
+                                onclick="event.stopPropagation();"
+                                onmouseover="this.style.color='#f4212e'" 
+                                onmouseout="this.style.color=''">
+                            <i class="{% if user in tweet.likes.all %}fas{% else %}far{% endif %} fa-heart"></i>
+                            <span class="ms-1 like-count">{{ tweet.likes.count|default:0 }}</span>
+                        </button>
+                        
+                        <button class="btn btn-link text-secondary p-0 hover-primary" 
+                                style="transition: all 0.2s ease; text-decoration: none;"
+                                onclick="event.stopPropagation();"
+                                onmouseover="this.style.color='#1d9bf0'" 
+                                onmouseout="this.style.color=''">
+                            <i class="fas fa-share-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="text-center py-5">
+            <i class="fas fa-feather-alt fa-3x text-secondary mb-3"></i>
+            <h4 class="text-light">No tweets yet</h4>
+            {% if user == profile_user %}
+            <p class="text-secondary">Share your first tweet with the world!</p>
+            <a href="{% url 'tweet_create' %}" class="btn btn-primary-custom mt-2">
+                <i class="fas fa-plus me-2"></i>Create Tweet
+            </a>
+            {% else %}
+            <p class="text-secondary">@{{ profile_user.username }} hasn't tweeted yet</p>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Additional CSS -->
+<style>
+    .tweet-container {
+        max-width: 600px !important;
+        padding: 0 !important;
+    }
+    
+    .btn-primary.btn-sm {
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .position-relative .position-relative:hover .btn-primary.btn-sm {
+        opacity: 1;
+    }
+    
+    .follow-btn {
+        transition: all 0.3s ease !important;
+    }
+    
+    .follow-btn:hover {
+        transform: scale(1.05);
+    }
+    
+    .follow-btn.following {
+        background-color: transparent !important;
+        border: 1px solid #2f3336 !important;
+        color: #e7e9ea !important;
+    }
+    
+    .follow-btn.following:hover {
+        background-color: rgba(244, 33, 46, 0.1) !important;
+        border-color: #f4212e !important;
+        color: #f4212e !important;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Tab switching
+    const tabs = document.querySelectorAll('.btn-link');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            tabs.forEach(t => {
+                t.classList.remove('text-light');
+                t.classList.add('text-secondary');
+                const indicator = t.querySelector('span.position-absolute');
+                if (indicator) {
+                    indicator.style.display = 'none';
+                }
+            });
+            this.classList.remove('text-secondary');
+            this.classList.add('text-light');
+            const indicator = this.querySelector('span.position-absolute');
+            if (indicator) {
+                indicator.style.display = 'block';
+            }
+        });
+    });
+    
+    // Follow button
+    const followBtn = document.querySelector('.follow-btn');
+    if (followBtn) {
+        followBtn.addEventListener('click', function() {
+            if (this.classList.contains('following')) {
+                this.classList.remove('following');
+                this.innerHTML = '<i class="fas fa-user-plus me-2"></i>Follow';
+            } else {
+                this.classList.add('following');
+                this.innerHTML = '<i class="fas fa-check me-2"></i>Following';
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

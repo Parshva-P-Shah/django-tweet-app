@@ -1,0 +1,318 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block title %}Logged Out - Tweeties{% endblock %}
+
+{% block content %}
+<div class="min-vh-100 d-flex align-items-center justify-content-center p-4" style="background: #000;">
+    <div class="card bg-dark border-secondary" style="width: 100%; max-width: 420px; border-radius: 16px;">
+        <div class="card-body p-4 p-md-5 text-center">
+            <!-- Success Icon -->
+            <div class="mb-4">
+                <div class="position-relative d-inline-block">
+                    <div class="bg-success bg-opacity-10 rounded-circle p-4" style="width: 100px; height: 100px; margin: 0 auto;">
+                        <i class="fas fa-check-circle fa-4x text-success"></i>
+                    </div>
+                    <!-- Animated rings -->
+                    <div class="position-absolute top-0 start-0 w-100 h-100 ">
+                        <div class="pulse-ring" ></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Header -->
+            <h3 class="text-light fw-bold mb-2">You've been logged out</h3>
+            <p class="text-secondary mb-4 ">
+                <i class="fas fa-shield-alt text-primary me-2"></i>
+                Your account has been securely logged out
+            </p>
+            
+            <!-- Divider -->
+            <div class="position-relative my-4">
+                <hr class="border-secondary">
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="d-grid gap-3">
+                <!-- Login Button -->
+                <a href="{% url 'login' %}" class="btn btn-primary-custom py-2">
+                    <i class="fas fa-sign-in-alt me-2"></i>Sign In Again
+                </a>
+                
+                <!-- Home Button -->
+                <a href="{% url 'tweet_list' %}" class="btn btn-outline-secondary text-light border-secondary py-2">
+                    <i class="fas fa-home me-2"></i>Go to Homepage
+                </a>
+                
+                <!-- Register Button -->
+                <a href="{% url 'register' %}" class="btn btn-outline-secondary text-light border-secondary py-2">
+                    <i class="fas fa-user-plus me-2"></i>Create New Account
+                </a>
+            </div>
+            
+            <!-- Auto-redirect Timer -->
+            <div class="mt-4 pt-3 border-top border-secondary">
+                <p class="text-secondary small mb-0">
+                    <i class="fas fa-clock me-1"></i>
+                    You will be redirected to the login page in 
+                    <span id="countdown" class="text-primary fw-bold">5</span> seconds
+                </p>
+                <div class="progress mt-2" style="height: 3px;">
+                    <div id="countdown-progress" class="progress-bar bg-primary" role="progressbar" 
+                         style="width: 100%; transition: width 1s linear;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Additional Info -->
+    <div class="position-fixed bottom-0 start-0 w-100 p-3 text-center" style="background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);">
+        <small class="text-secondary">
+            <i class="fas fa-lock me-1 text-primary"></i>
+            Your session has been cleared. For security, close your browser if using a shared device.
+        </small>
+    </div>
+</div>
+
+<!-- Additional CSS -->
+<style>
+    /* Override layout container */
+    .container {
+        max-width: 100% !important;
+        padding: 0 !important;
+    }
+    
+    .tweet-container {
+        border-left: none !important;
+        border-right: none !important;
+        max-width: 100% !important;
+        min-height: auto !important;
+    }
+    
+    /* Card animation */
+    .card {
+        animation: slideUp 0.6s ease-out;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+    }
+    
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px) scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+    
+    /* Pulse animation for the icon */
+    .pulse-ring {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+        border: 2px solid rgba(40, 167, 69, 0.3);
+    }
+    
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+            opacity: 0.8;
+        }
+        50% {
+            transform: scale(1.1);
+            opacity: 0.2;
+        }
+        100% {
+            transform: scale(1);
+            opacity: 0.8;
+        }
+    }
+    
+    /* Success icon background */
+    .bg-success.bg-opacity-10 {
+        background-color: rgba(40, 167, 69, 0.1) !important;
+    }
+    
+    /* Button styles */
+    .btn-primary-custom {
+        background-color: #1d9bf0;
+        border: none;
+        border-radius: 9999px !important;
+        font-weight: 700;
+        color: white;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary-custom:hover {
+        background-color: #1a8cd8;
+        color: white;
+        transform: scale(1.02);
+        box-shadow: 0 4px 15px rgba(29, 155, 240, 0.3);
+    }
+    
+    .btn-outline-secondary {
+        border: 1px solid #2f3336 !important;
+        border-radius: 9999px !important;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-outline-secondary:hover {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        border-color: #1d9bf0 !important;
+        color: #1d9bf0 !important;
+        transform: scale(1.02);
+    }
+    
+    /* Progress bar animation */
+    #countdown-progress {
+        background-color: #1d9bf0;
+        animation: progressDecrease 5s linear forwards;
+    }
+    
+    @keyframes progressDecrease {
+        from { width: 100%; }
+        to { width: 0%; }
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 576px) {
+        .bg-success.bg-opacity-10 {
+            width: 80px !important;
+            height: 80px !important;
+        }
+        
+        .bg-success.bg-opacity-10 i {
+            font-size: 3rem !important;
+        }
+    }
+    
+    /* Bottom bar animation */
+    .position-fixed {
+        animation: slideUp 0.8s ease-out;
+        animation-delay: 0.3s;
+        opacity: 0;
+        animation-fill-mode: forwards;
+    }
+    
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<!-- JavaScript for Countdown -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let seconds = 5;
+    const countdownElement = document.getElementById('countdown');
+    const progressBar = document.getElementById('countdown-progress');
+    const loginUrl = "{% url 'login' %}";
+    
+    // Countdown timer
+    const timer = setInterval(function() {
+        seconds--;
+        
+        if (countdownElement) {
+            countdownElement.textContent = seconds;
+        }
+        
+        // Update progress bar manually
+        if (progressBar) {
+            const percentage = (seconds / 5) * 100;
+            progressBar.style.width = percentage + '%';
+        }
+        
+        if (seconds <= 0) {
+            clearInterval(timer);
+            // Redirect to login
+            window.location.href = loginUrl;
+        }
+    }, 1000);
+    
+    // Optional: Pause countdown on hover
+    const card = document.querySelector('.card');
+    let timerPaused = false;
+    let remainingSeconds = 5;
+    
+    if (card) {
+        card.addEventListener('mouseenter', function() {
+            // You can add logic to pause countdown if needed
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            // Resume countdown
+        });
+    }
+    
+    // Add animation to checkmark
+    const checkIcon = document.querySelector('.fa-check-circle');
+    if (checkIcon) {
+        checkIcon.style.animation = 'bounceIn 0.6s ease-out';
+    }
+    
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        // Press 'L' for login
+        if (e.key === 'l' || e.key === 'L') {
+            window.location.href = "{% url 'login' %}";
+        }
+        // Press 'H' for home
+        if (e.key === 'h' || e.key === 'H') {
+            window.location.href = "{% url 'tweet_list' %}";
+        }
+    });
+    
+    // Show keyboard shortcuts hint
+    console.log('Keyboard shortcuts: L - Login, H - Home');
+});
+</script>
+
+<!-- Additional Animation Styles -->
+<style>
+    @keyframes bounceIn {
+        0% {
+            opacity: 0;
+            transform: scale(0.3);
+        }
+        50% {
+            opacity: 1;
+            transform: scale(1.05);
+        }
+        70% {
+            transform: scale(0.9);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+    
+    /* Floating particles effect (optional) */
+    .particle {
+        position: fixed;
+        border-radius: 50%;
+        pointer-events: none;
+        animation: float 8s infinite;
+        opacity: 0.2;
+    }
+</style>
+{% endblock %}
+
+{% comment %} {% extends "layout.html" %}
+{% block content %}
+<h2>Logged Out</h2>
+<p>You Have Been Logged Out<a href="{% url "login" %}">Login Here</a></p>
+{% endblock %} {% endcomment %}

@@ -1,0 +1,396 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block title %}Register - Tweeties{% endblock %}
+
+{% block content %}
+<div class="min-vh-100 d-flex align-items-center justify-content-center p-4" style="background: #000;">
+    <div class="card bg-dark border-secondary" style="width: 100%; max-width: 450px; border-radius: 16px;">
+        <div class="card-body p-4 p-md-5">
+            <!-- Header -->
+            <div class="text-center mb-4">
+                <h3 class="text-light fw-bold">Join Tweeties today</h3>
+                <p class="text-secondary">Create your account and start tweeting</p>
+            </div>
+            
+            <!-- Form -->
+            <form method="post" novalidate>
+                {% csrf_token %}
+                
+                <!-- Display Form Errors -->
+                {% if form.errors %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    Please correct the errors below.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endif %}
+                
+                <!-- Username Field -->
+                <div class="mb-3">
+                    <label for="id_username" class="form-label text-light fw-semibold">
+                        <i class="fas fa-user me-2 text-primary"></i>Username
+                    </label>
+                    <input type="text" name="username" id="id_username" 
+                           class="form-control bg-dark text-light border-secondary {% if form.username.errors %}is-invalid{% endif %}" 
+                           placeholder="Choose a username" 
+                           value="{{ form.username.value|default:'' }}"
+                           required>
+                    {% if form.username.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.username.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    <div class="form-text text-secondary small">
+                        <i class="fas fa-info-circle me-1"></i>150 characters or fewer. Letters, digits and @/./+/-/_ only.
+                    </div>
+                </div>
+                
+                <!-- Email Field -->
+                <div class="mb-3">
+                    <label for="id_email" class="form-label text-light fw-semibold">
+                        <i class="fas fa-envelope me-2 text-primary"></i>Email
+                    </label>
+                    <input type="email" name="email" id="id_email" 
+                           class="form-control bg-dark text-light border-secondary {% if form.email.errors %}is-invalid{% endif %}" 
+                           placeholder="Enter your email" 
+                           value="{{ form.email.value|default:'' }}"
+                           required>
+                    {% if form.email.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.email.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Password1 Field -->
+                <div class="mb-3">
+                    <label for="id_password1" class="form-label text-light fw-semibold">
+                        <i class="fas fa-lock me-2 text-primary"></i>Password
+                    </label>
+                    <input type="password" name="password1" id="id_password1" 
+                           class="form-control bg-dark text-light border-secondary {% if form.password1.errors %}is-invalid{% endif %}" 
+                           placeholder="Create a strong password"
+                           required>
+                    {% if form.password1.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.password1.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    <div class="form-text text-secondary small">
+                        <i class="fas fa-info-circle me-1"></i>
+                        <span id="password-help">Your password must contain at least 8 characters and can't be too common.</span>
+                    </div>
+                    
+                    <!-- Password Strength Indicator -->
+                    <div class="mt-2" id="password-strength"></div>
+                </div>
+                
+                <!-- Password2 Field -->
+                <div class="mb-4">
+                    <label for="id_password2" class="form-label text-light fw-semibold">
+                        <i class="fas fa-check-circle me-2 text-primary"></i>Confirm Password
+                    </label>
+                    <input type="password" name="password2" id="id_password2" 
+                           class="form-control bg-dark text-light border-secondary {% if form.password2.errors %}is-invalid{% endif %}" 
+                           placeholder="Confirm your password"
+                           required>
+                    {% if form.password2.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.password2.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Terms and Conditions -->
+                <div class="mb-4 form-check">
+                    <input type="checkbox" class="form-check-input bg-dark border-secondary" id="terms" required>
+                    <label class="form-check-label text-secondary small" for="terms">
+                        I agree to the <a href="#" class="text-primary text-decoration-none">Terms of Service</a> 
+                        and <a href="#" class="text-primary text-decoration-none">Privacy Policy</a>
+                    </label>
+                </div>
+                
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary-custom w-100 py-2 mb-3" id="register-btn">
+                    <i class="fas fa-user-plus me-2"></i>Create Account
+                </button>
+                
+                <!-- Login Link -->
+                <div class="text-center text-secondary">
+                    Already have an account? 
+                    <a href="{% url 'login' %}" class="text-primary text-decoration-none fw-semibold">
+                        Sign in
+                    </a>
+                </div>
+            </form>
+            
+            <!-- Divider -->
+            <div class="position-relative my-4">
+                <hr class="border-secondary">
+                <span class="position-absolute top-50 start-50 translate-middle bg-dark px-3 text-secondary small">
+                    or
+                </span>
+            </div>
+            
+            <!-- Social Sign Up -->
+            <div class="d-grid gap-2">
+                <button class="btn btn-outline-secondary text-light border-secondary" type="button">
+                    <i class="fab fa-google me-2"></i>Sign up with Google
+                </button>
+                <button class="btn btn-outline-secondary text-light border-secondary" type="button">
+                    <i class="fab fa-github me-2"></i>Sign up with GitHub
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Additional CSS -->
+<style>
+    /* Override any layout container styles for this page */
+    .container {
+        max-width: 100% !important;
+        padding: 0 !important;
+    }
+    
+    /* Remove border from layout container */
+    .tweet-container {
+        border-left: none !important;
+        border-right: none !important;
+        max-width: 100% !important;
+        min-height: auto !important;
+    }
+    
+    /* Form input focus styles */
+    .form-control:focus {
+        background-color: #1a1a1a !important;
+        border-color: #1d9bf0 !important;
+        box-shadow: 0 0 0 3px rgba(29, 155, 240, 0.15) !important;
+        color: #e7e9ea !important;
+    }
+    
+    .form-control.is-invalid:focus {
+        border-color: #dc3545 !important;
+        box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15) !important;
+    }
+    
+    /* Password strength colors */
+    .password-strength-weak { color: #f4212e; }
+    .password-strength-medium { color: #ffd700; }
+    .password-strength-strong { color: #00ba7c; }
+    .password-strength-very-strong { color: #00ba7c; }
+    
+    /* Checkbox styling */
+    .form-check-input:checked {
+        background-color: #1d9bf0;
+        border-color: #1d9bf0;
+    }
+    
+    .form-check-input:focus {
+        border-color: #1d9bf0;
+        box-shadow: 0 0 0 3px rgba(29, 155, 240, 0.15);
+    }
+    
+    /* Card hover effect */
+    .card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+    }
+    
+    /* Button hover animation */
+    .btn-primary-custom {
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary-custom:hover {
+        transform: scale(1.02);
+        box-shadow: 0 4px 15px rgba(29, 155, 240, 0.3);
+    }
+    
+    /* Social buttons hover */
+    .btn-outline-secondary:hover {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        border-color: #1d9bf0 !important;
+        color: #1d9bf0 !important;
+    }
+</style>
+
+<!-- JavaScript for Password Strength and Validation -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const passwordInput = document.getElementById('id_password1');
+    const passwordConfirm = document.getElementById('id_password2');
+    const strengthDiv = document.getElementById('password-strength');
+    const registerBtn = document.getElementById('register-btn');
+    const termsCheckbox = document.getElementById('terms');
+    const form = document.querySelector('form');
+    
+    // Password Strength Checker
+    function checkPasswordStrength(password) {
+        let strength = 0;
+        let message = '';
+        let className = '';
+        
+        if (password.length >= 8) strength++;
+        if (password.length >= 12) strength++;
+        if (password.match(/[a-z]+/)) strength++;
+        if (password.match(/[A-Z]+/)) strength++;
+        if (password.match(/[0-9]+/)) strength++;
+        if (password.match(/[$@#&!]+/)) strength++;
+        
+        if (password.length === 0) {
+            message = '';
+            className = '';
+        } else if (strength <= 2) {
+            message = 'Weak password';
+            className = 'password-strength-weak';
+        } else if (strength <= 3) {
+            message = 'Medium password';
+            className = 'password-strength-medium';
+        } else if (strength <= 4) {
+            message = 'Strong password';
+            className = 'password-strength-strong';
+        } else {
+            message = 'Very strong password! 💪';
+            className = 'password-strength-very-strong';
+        }
+        
+        return { message, className, strength };
+    }
+    
+    // Real-time password strength
+    passwordInput.addEventListener('input', function() {
+        const result = checkPasswordStrength(this.value);
+        if (result.message) {
+            strengthDiv.innerHTML = `
+                <div class="progress" style="height: 4px;">
+                    <div class="progress-bar bg-${result.strength <= 2 ? 'danger' : result.strength <= 3 ? 'warning' : 'success'}" 
+                         role="progressbar" 
+                         style="width: ${(result.strength / 6) * 100}%;" 
+                         aria-valuenow="${(result.strength / 6) * 100}" 
+                         aria-valuemin="0" 
+                         aria-valuemax="100">
+                    </div>
+                </div>
+                <small class="${result.className} mt-1 d-block">
+                    <i class="fas fa-${result.strength <= 2 ? 'exclamation-circle' : 'check-circle'} me-1"></i>
+                    ${result.message}
+                </small>
+            `;
+        } else {
+            strengthDiv.innerHTML = '';
+        }
+        
+        // Check password match
+        checkPasswordMatch();
+    });
+    
+    // Password match check
+    function checkPasswordMatch() {
+        const password = passwordInput.value;
+        const confirm = passwordConfirm.value;
+        
+        if (confirm.length > 0) {
+            if (password === confirm) {
+                passwordConfirm.classList.remove('is-invalid');
+                passwordConfirm.classList.add('is-valid');
+                document.getElementById('password-match-feedback')?.remove();
+            } else {
+                passwordConfirm.classList.remove('is-valid');
+                passwordConfirm.classList.add('is-invalid');
+                // Remove existing feedback
+                const existingFeedback = document.getElementById('password-match-feedback');
+                if (existingFeedback) existingFeedback.remove();
+                // Add new feedback
+                const feedback = document.createElement('div');
+                feedback.id = 'password-match-feedback';
+                feedback.className = 'invalid-feedback';
+                feedback.innerHTML = 'Passwords do not match.';
+                passwordConfirm.parentNode.appendChild(feedback);
+            }
+        } else {
+            passwordConfirm.classList.remove('is-invalid', 'is-valid');
+        }
+    }
+    
+    passwordConfirm.addEventListener('input', checkPasswordMatch);
+    
+    // Form validation before submit
+    form.addEventListener('submit', function(e) {
+        // Check if passwords match
+        if (passwordInput.value !== passwordConfirm.value) {
+            e.preventDefault();
+            passwordConfirm.classList.add('is-invalid');
+            const feedback = document.createElement('div');
+            feedback.id = 'password-match-feedback';
+            feedback.className = 'invalid-feedback';
+            feedback.innerHTML = 'Passwords do not match.';
+            passwordConfirm.parentNode.appendChild(feedback);
+            passwordConfirm.focus();
+            return false;
+        }
+        
+        // Check terms
+        if (!termsCheckbox.checked) {
+            e.preventDefault();
+            termsCheckbox.classList.add('is-invalid');
+            // Add feedback if not exists
+            let feedback = termsCheckbox.parentNode.querySelector('.invalid-feedback');
+            if (!feedback) {
+                feedback = document.createElement('div');
+                feedback.className = 'invalid-feedback';
+                feedback.innerHTML = 'You must agree to the Terms of Service.';
+                termsCheckbox.parentNode.appendChild(feedback);
+            }
+            termsCheckbox.focus();
+            return false;
+        }
+        
+        return true;
+    });
+    
+    // Remove error on checkbox change
+    termsCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+            this.classList.remove('is-invalid');
+            const feedback = this.parentNode.querySelector('.invalid-feedback');
+            if (feedback) feedback.remove();
+        }
+    });
+    
+    // Input focus effects
+    document.querySelectorAll('.form-control').forEach(input => {
+        input.addEventListener('focus', function() {
+            this.parentElement.querySelector('.form-label')?.classList.add('text-primary');
+        });
+        input.addEventListener('blur', function() {
+            this.parentElement.querySelector('.form-label')?.classList.remove('text-primary');
+        });
+    });
+});
+</script>
+{% endblock %}
+
+{% comment %} {% extends "layout.html" %}
+{% block content %}
+<h2>Register</h2>
+<form  method="post">
+    {% csrf_token %}
+    {{form.as_p}}
+    <button class="btn btn-primary">Register</button>
+</form>
+<p>Don't Have a Account? <a href="{% url "login" %}">Register Here</a></p>
+{% endblock %} {% endcomment %}

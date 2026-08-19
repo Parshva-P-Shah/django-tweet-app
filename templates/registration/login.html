@@ -1,0 +1,401 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block title %}Login - Tweeties{% endblock %}
+
+{% block content %}
+<div class="min-vh-100 d-flex align-items-center justify-content-center p-4" style="background: #000;">
+    <div class="card bg-dark border-secondary" style="width: 100%; max-width: 420px; border-radius: 16px;">
+        <div class="card-body p-4 p-md-5">
+            <!-- Header -->
+            <div class="text-center mb-4">
+               
+                <h3 class="text-light fw-bold">Welcome back</h3>
+                <p class="text-secondary">Sign in to continue to Tweeties</p>
+            </div>
+            
+            <!-- Form -->
+            <form method="post" novalidate>
+                {% csrf_token %}
+                <!-- Display Form Errors -->
+                {% if form.errors %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    Invalid username or password. Please try again.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endif %}
+                
+                <!-- Display Non-field Errors -->
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    {% for error in form.non_field_errors %}
+                        {{ error }}
+                    {% endfor %}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endif %}
+                
+                <!-- Username Field -->
+                <div class="mb-3">
+                    <label for="id_username" class="form-label text-light fw-semibold">
+                        <i class="fas fa-user me-2 text-primary"></i>Username or Email
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-dark border-secondary text-secondary">
+                            <i class="fas fa-at"></i>
+                        </span>
+                        <input type="text" name="username" id="id_username" 
+                               class="form-control bg-dark text-light border-secondary {% if form.username.errors %}is-invalid{% endif %}" 
+                               placeholder="Enter your username or email" 
+                               value="{{ form.username.value|default:'' }}"
+                               autofocus
+                               required>
+                        {% if form.username.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.username.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Password Field -->
+                <div class="mb-3">
+                    <label for="id_password" class="form-label text-light fw-semibold">
+                        <i class="fas fa-lock me-2 text-primary"></i>Password
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-dark border-secondary text-secondary">
+                            <i class="fas fa-key"></i>
+                        </span>
+                        <input type="password" name="password" id="id_password" 
+                               class="form-control bg-dark text-light border-secondary {% if form.password.errors %}is-invalid{% endif %}" 
+                               placeholder="Enter your password"
+                               required>
+                        <button class="btn " type="button" id="togglePassword">
+                            <i class="fas fa-eye" id="eyeIcon"></i>
+                        </button>
+                        {% if form.password.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.password.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Remember Me & Forgot Password -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="form-check">
+                        <input type="checkbox" name="remember" id="remember" class="form-check-input bg-dark border-secondary">
+                        <label class="form-check-label text-secondary small" for="remember">
+                            <i class="fas fa-check-circle me-1"></i>Remember me
+                        </label>
+                    </div>
+                    <a href="#" class="text-primary text-decoration-none small">
+                        <i class="fas fa-key me-1"></i>Forgot password?
+                    </a>
+                </div>
+                
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary-custom w-100 py-2 mb-3">
+                    <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                </button>
+                
+                <!-- Register Link -->
+                <div class="text-center text-secondary">
+                    Don't have an account? 
+                    <a href="{% url 'register' %}" class="text-primary text-decoration-none fw-semibold">
+                        <i class="fas fa-user-plus me-1"></i>Sign up
+                    </a>
+                </div>
+            </form>
+            
+            <!-- Divider -->
+            <div class="position-relative my-4">
+                <hr class="border-secondary">
+                <span class="position-absolute top-50 start-50 translate-middle bg-dark px-3 text-secondary small">
+                    or continue with
+                </span>
+            </div>
+            
+            <!-- Social Login -->
+            <div class="d-grid gap-2">
+                <button class="btn btn-outline-secondary text-light border-secondary" type="button">
+                    <i class="fab fa-google me-2"></i>Sign in with Google
+                </button>
+                <button class="btn btn-outline-secondary text-light border-secondary" type="button">
+                    <i class="fab fa-github me-2"></i>Sign in with GitHub
+                </button>
+            </div>
+            
+            <!-- Demo Credentials (Remove in production) -->
+            <div class="mt-4 p-3 bg-dark border border-secondary rounded-3" style="background: #0a0a0a !important;">
+                <small class="text-secondary d-block text-center">
+                    <i class="fas fa-info-circle me-1 text-primary"></i>
+                    <span class="fw-semibold text-light">Demo Credentials:</span>
+                </small>
+                <div class="d-flex justify-content-center gap-3 mt-1">
+                    <small class="text-secondary">
+                        <span class="text-light">User:</span> demo
+                    </small>
+                    <small class="text-secondary">
+                        <span class="text-light">Pass:</span> demo12345
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Additional CSS -->
+<style>
+    /* Override layout container */
+    .container {
+        max-width: 100% !important;
+        padding: 0 !important;
+    }
+    
+    .tweet-container {
+        border-left: none !important;
+        border-right: none !important;
+        max-width: 100% !important;
+        min-height: auto !important;
+    }
+    
+    /* Form input styles */
+    .form-control {
+        background-color: #0a0a0a !important;
+        border: 1px solid #2f3336 !important;
+        color: #e7e9ea !important;
+        transition: all 0.3s ease;
+        border-radius: 8px !important;
+    }
+    
+    .form-control:focus {
+        background-color: #1a1a1a !important;
+        border-color: #1d9bf0 !important;
+        box-shadow: 0 0 0 3px rgba(29, 155, 240, 0.15) !important;
+        color: #e7e9ea !important;
+    }
+    
+    .form-control.is-invalid {
+        border-color: #dc3545 !important;
+    }
+    
+    .form-control.is-invalid:focus {
+        box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15) !important;
+    }
+    
+    /* Input group styles */
+    .input-group-text {
+        border-radius: 8px 0 0 8px !important;
+        border-right: none !important;
+        background-color: #0a0a0a !important;
+    }
+    
+    .input-group .form-control {
+        border-radius: 0 8px 8px 0 !important;
+    }
+    
+    .input-group .form-control:not(:first-child) {
+        border-left: none !important;
+    }
+    
+    .input-group .btn-outline-secondary {
+        border-radius: 0 8px 8px 0 !important;
+        border-left: none !important;
+        background-color: #0a0a0a !important;
+    }
+    
+    .input-group .btn-outline-secondary:hover {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+    }
+    
+    /* Checkbox styling */
+    .form-check-input {
+        background-color: #0a0a0a !important;
+        border-color: #2f3336 !important;
+        cursor: pointer;
+    }
+    
+    .form-check-input:checked {
+        background-color: #1d9bf0 !important;
+        border-color: #1d9bf0 !important;
+    }
+    
+    .form-check-input:focus {
+        border-color: #1d9bf0 !important;
+        box-shadow: 0 0 0 3px rgba(29, 155, 240, 0.15) !important;
+    }
+    
+    .form-check-label {
+        cursor: pointer;
+    }
+    
+    /* Card animation */
+    .card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        animation: slideUp 0.5s ease-out;
+    }
+    
+    .card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+    }
+    
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px) scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+    
+    /* Button hover effects */
+    .btn-primary-custom {
+        transition: all 0.3s ease;
+        border-radius: 9999px !important;
+    }
+    
+    .btn-primary-custom:hover {
+        transform: scale(1.02);
+        box-shadow: 0 4px 15px rgba(29, 155, 240, 0.3);
+    }
+    
+    /* Social buttons */
+    .btn-outline-secondary {
+        transition: all 0.3s ease;
+        border-radius: 9999px !important;
+    }
+    
+    .btn-outline-secondary:hover {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        border-color: #1d9bf0 !important;
+        color: #1d9bf0 !important;
+        transform: scale(1.02);
+    }
+    
+    /* Alert styles */
+    .alert {
+        border-radius: 12px !important;
+        border: none !important;
+        background: rgba(220, 53, 69, 0.15) !important;
+        color: #f5a3a3 !important;
+        backdrop-filter: blur(10px);
+    }
+    
+    .alert .btn-close {
+        filter: invert(1) grayscale(100%) brightness(200%);
+    }
+    
+    /* Demo credentials box */
+    .bg-dark.border-secondary {
+        border-color: #2f3336 !important;
+    }
+</style>
+
+<!-- JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle Password Visibility
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('id_password');
+    const eyeIcon = document.getElementById('eyeIcon');
+    
+    if (togglePassword && passwordInput) {
+        togglePassword.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            
+            // Toggle eye icon
+            if (type === 'text') {
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+                this.classList.add('text-primary');
+            } else {
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+                this.classList.remove('text-primary');
+            }
+        });
+    }
+    
+    // Auto-dismiss alerts after 5 seconds
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+        setTimeout(() => {
+            const closeButton = alert.querySelector('.btn-close');
+            if (closeButton) {
+                closeButton.click();
+            }
+        }, 5000);
+    });
+    
+    // Add hover effect to input groups
+    document.querySelectorAll('.input-group').forEach(group => {
+        group.addEventListener('mouseenter', function() {
+            this.querySelectorAll('.form-control, .input-group-text, .btn-outline-secondary')
+                .forEach(el => {
+                    el.style.borderColor = '#1d9bf0';
+                });
+        });
+        
+        group.addEventListener('mouseleave', function() {
+            if (!this.querySelector('.form-control:focus')) {
+                this.querySelectorAll('.form-control, .input-group-text, .btn-outline-secondary')
+                    .forEach(el => {
+                        el.style.borderColor = '#2f3336';
+                    });
+            }
+        });
+    });
+    
+    // Enter key to submit form
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                this.submit();
+            }
+        });
+    }
+    
+    // Remove validation on input
+    document.querySelectorAll('.form-control').forEach(input => {
+        input.addEventListener('input', function() {
+            this.classList.remove('is-invalid');
+        });
+    });
+    
+    // Remember me - store preference
+    const rememberCheckbox = document.getElementById('remember');
+    if (rememberCheckbox && localStorage.getItem('rememberMe') === 'true') {
+        rememberCheckbox.checked = true;
+    }
+    
+    rememberCheckbox?.addEventListener('change', function() {
+        localStorage.setItem('rememberMe', this.checked);
+    });
+});
+</script>
+{% endblock %}
+
+{% comment %} {% extends "layout.html" %}
+{% block content %}
+<h2>Login</h2>
+<form  method="post">
+    {% csrf_token %}
+    {{form.as_p}}
+    <button class="btn btn-primary">Login</button>
+</form>
+<p>Don't Have a Account? <a href="{% url "register" %}">Register Here</a></p>
+{% endblock %} {% endcomment %}
